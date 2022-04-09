@@ -1,13 +1,18 @@
 #!/bin/bash
 
-rcloneDrive='OD:/download/'
+rcloneDrive='OD:/Download/'
 downloadPath='/home/download'
+
+TOKEN=
+CHATID=
 
 if [ $2 -eq 0 ]; then
   exit 0
 elif [ $2 -eq 1 ]; then
   basenameStr=`basename "$3"`
   su - -c "rclone move \"$3\" $rcloneDrive"
+  TEXT=$(echo $3 | sed 's|.*/||')
+  curl -s -o /dev/null "https://api.telegram.org/bot$TOKEN/sendMessage?chat_id=$CHATID&text=$TEXT Uploaded"
   exit 0
 else
   filePath=$3
@@ -16,6 +21,8 @@ else
     if [ "$dirnameStr" = "$downloadPath" ]; then
       basenameStr=`basename "$filePath"`
       su - -c "rclone move \"$filePath\" $rcloneDrive\"$basenameStr\""
+      TEXT2=$(echo $3 | sed 's|.*/||')
+      curl -s -o /dev/null "https://api.telegram.org/bot$TOKEN/sendMessage?chat_id=$CHATID&text=$TEXT2 Uploaded"
       rm -r -f "$filePath"
       exit 0
     elif [ "$dirnameStr" = "/" ]; then
@@ -25,8 +32,3 @@ else
     fi
   done
 fi
-
-# API_KEY=""
-# CHAT_ID=""
-# curl -s -o /dev/null "https://api.telegram.org/bot$API_KEY/sendMessage?chat_id=$CHAT_ID&text=upload completed"
-
